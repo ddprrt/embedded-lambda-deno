@@ -1,11 +1,8 @@
-
-use std::borrow::Borrow;
-
-use deno_core::{JsRuntime, OpState, Resource, error::AnyError};
-use gag::BufferRedirect;
 use lambda_runtime::{Context, handler_fn};
 use serde_json::{Value, json};
-use std::io::Read;
+
+use rusty_v8 as v8;
+
 
 #[tokio::main]
 async fn main() -> Result<(), lambda_runtime::Error>{
@@ -15,24 +12,37 @@ async fn main() -> Result<(), lambda_runtime::Error>{
 }
 
 async fn handler(_event: Value, _: Context) -> Result<Value, lambda_runtime::Error> {
-    let source = "Deno.core.opSync('op_return', '123');";
-    let mut runtime = JsRuntime::new(Default::default());
-    runtime.register_op("op_return", deno_core::op_sync(op_return));
-    runtime.sync_ops_cache();
-    runtime.execute_script("main.js", &source).unwrap();
-    Ok(json!({ "message": format!("{}", "done")}))
-}
+    let platform = v8::new_default_platform(0, false).make_shared();
+    v8::V8::initialize_platform(platform);
+    v8::V8::initialize();
 
-fn op_return(state: &mut OpState, result: String, _: ()) -> Result<(), AnyError> {
-    let _rid = state.resource_table.add(Container { value: result.clone() });
-    println!("{}", result);
-    Ok(())
-}
+    
+    // Create a new Isolate and make it the current one.
+    let isolate = &mut v8::Isolate::new(v8::CreateParams::default());
 
-struct Container {
-    value: String
-}
+    // Create a stack-allocated handle scope.
+    let handle_scope = &mut v8::HandleScope::new(isolate);
 
-impl Resource for Container {
-   fn close(self: std::rc::Rc<Self>) {}
+    // Create a new context.
+    let context = v8::Context::new(handle_scope);
+
+    // Enter the context for compiling and running the hello world script.
+    let scope = &mut v8::ContextScope::new(handle_scope, context);
+
+    // Create a string containing the JavaScript source code.
+    let code = v8::String::new(scope, "'Hello' + ' World!'").unwrap();
+
+    // Compile the source code.
+    let script = v8::Script::compile(scope, code, None).unwrap();
+    // Run the script to get the result.
+    let result = script.run(scope).unwrap();
+
+    // Convert the result to a string and print it.
+    let result = result.to_string(scope).unwrap();
+
+    unsafe {
+        v8::V8::dispose();
+    }
+    v8::V8::shutdown_platform();
+    Ok(json!({ "message": format!("{}", result.to_rust_string_lossy(scope))}))
 }
