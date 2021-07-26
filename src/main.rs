@@ -19,12 +19,8 @@ async fn handler(_event: Value, _: Context) -> Result<Value, lambda_runtime::Err
     let mut runtime = JsRuntime::new(Default::default());
     runtime.register_op("op_return", deno_core::op_sync(op_return));
     runtime.sync_ops_cache();
-    let mut buf = BufferRedirect::stdout().unwrap();
     runtime.execute_script("main.js", &source).unwrap();
-    let mut output = String::new();
-    buf.read_to_string(&mut output).unwrap();
-    drop(buf);
-    Ok(json!({ "message": format!("{}", output)}))
+    Ok(json!({ "message": format!("{}", "done")}))
 }
 
 fn op_return(state: &mut OpState, result: String, _: ()) -> Result<(), AnyError> {
