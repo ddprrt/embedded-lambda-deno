@@ -48,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: dist-shrug
-          path: ./target/release/lamda-deno
+          path: ./target/release/bootstrap
