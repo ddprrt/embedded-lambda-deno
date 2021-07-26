@@ -1,4 +1,4 @@
-name: GitHub Actiosn Demo
+name: GitHub Actions Demo
 on: [push]
 jobs:
   build:
@@ -17,8 +17,14 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
           override: true
-      - uses: actions-rs/cargo@v1
+      - name: Build
+        uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: build
           args: --release --target=${{ matrix.target }}
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: ./target/${{ matrix.target }}/release/lamda-deno
