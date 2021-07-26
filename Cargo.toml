@@ -15,3 +15,4 @@ gag = "1.0.0"
 
 [[bin]]
 name = "bootstrap"
+path = "src/main.rs"
