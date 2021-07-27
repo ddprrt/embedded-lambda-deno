@@ -56,11 +56,5 @@ async fn handler(_event: Value, _: Context) -> Result<Value, lambda_runtime::Err
     let _result = result.to_string(scope).unwrap();
 
 
-    unsafe {
-        v8::V8::dispose();
-    }
-    println!("Dispose {}", now.elapsed().unwrap().as_millis());
-    v8::V8::shutdown_platform();
-    println!("Shutdown {}", now.elapsed().unwrap().as_millis());
     Ok(json!({ "message": "yolo" }))
 }

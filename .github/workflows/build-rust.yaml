@@ -19,6 +19,8 @@ jobs:
           override: true
       - name: Build
         uses: actions-rs/cargo@v1
+        env:
+          V8_FROM_SOURCE: 1
         with:
           use-cross: true
           command: build
@@ -44,6 +46,8 @@ jobs:
           use-cross: true
           command: build
           args: --release
+        env:
+          V8_FROM_SOURCE: 1
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
