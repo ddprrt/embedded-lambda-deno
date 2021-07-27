@@ -3,7 +3,7 @@ use serde_json::{Value, json};
 
 use rusty_v8 as v8;
 
-use std::time::{self, SystemTime};
+use std::time::SystemTime;
 
 
 #[tokio::main]
@@ -53,7 +53,8 @@ async fn handler(_event: Value, _: Context) -> Result<Value, lambda_runtime::Err
     println!("Result {}", now.elapsed().unwrap().as_millis());
 
     // Convert the result to a string and print it.
-    let result = result.to_string(scope).unwrap();
+    let _result = result.to_string(scope).unwrap();
+
 
     unsafe {
         v8::V8::dispose();
@@ -61,5 +62,5 @@ async fn handler(_event: Value, _: Context) -> Result<Value, lambda_runtime::Err
     println!("Dispose {}", now.elapsed().unwrap().as_millis());
     v8::V8::shutdown_platform();
     println!("Shutdown {}", now.elapsed().unwrap().as_millis());
-    Ok(json!({ "message": format!("{}", result.to_rust_string_lossy(scope))}))
+    Ok(json!({ "message": "yolo" }))
 }

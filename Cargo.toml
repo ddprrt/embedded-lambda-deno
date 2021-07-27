@@ -14,3 +14,10 @@ rusty_v8 = "0.25.3"
 [[bin]]
 name = "bootstrap"
 path = "src/main.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+
+[profile.release.package.rusty_v8]
+opt-level = 3
